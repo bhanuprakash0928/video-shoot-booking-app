@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* ================= GLOBAL ================= */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#f5f7fb;
+color:#222;
+padding-bottom:95px;
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar{
+position:sticky;
+top:0;
+z-index:100;
+background:#ffffff;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:16px 30px;
+box-shadow:0 5px 18px rgba(0,0,0,.06);
+}
+
+.logo{
+font-size:22px;
+font-weight:700;
+color:#4c6fff;
+}
+
+.menu{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.menu button{
+padding:10px 15px;
+border:none;
+border-radius:12px;
+background:#eef1ff;
+color:#4c6fff;
+font-weight:600;
+cursor:pointer;
+}
+
+.menu button:hover{
+background:#4c6fff;
+color:#fff;
+}
+
+/* ================= CONTAINER ================= */
+
+.container{
+padding:28px;
+}
+
+/* ================= STATS ================= */
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+gap:18px;
+margin-bottom:28px;
+}
+
+.stat-card{
+background:#fff;
+padding:22px;
+border-radius:18px;
+box-shadow:0 10px 22px rgba(0,0,0,.05);
+}
+
+.stat-card h4{
+font-size:14px;
+color:#777;
+margin-bottom:8px;
+}
+
+.stat-card h2{
+font-size:28px;
+color:#4c6fff;
+}
+
+/* ================= TABLE ================= */
+
+.table-box{
+background:#fff;
+border-radius:18px;
+padding:20px;
+box-shadow:0 10px 22px rgba(0,0,0,.05);
+overflow:auto;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:12px;
+text-align:left;
+border-bottom:1px solid #eee;
+font-size:14px;
+}
+
+th{
+color:#4c6fff;
+}
+
+img.thumb{
+width:60px;
+height:45px;
+border-radius:8px;
+object-fit:cover;
+}
+
+/* ================= BUTTONS ================= */
+
+.btn{
+padding:8px 12px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-weight:600;
+}
+
+.primary{
+background:#4c6fff;
+color:#fff;
+}
+
+.danger{
+background:#ef4444;
+color:#fff;
+}
+
+.success{
+background:#16a34a;
+color:#fff;
+}
+
+/* ================= FORM ================= */
+
+.form-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:14px;
+margin-top:18px;
+}
+
+.form-grid input{
+padding:12px;
+border:1px solid #ddd;
+border-radius:10px;
+}
+
+/* ================= FOOTER ================= */
+
+.footer-menu{
+position:fixed;
+bottom:12px;
+left:12px;
+right:12px;
+background:#fff;
+border-radius:18px;
+display:flex;
+justify-content:space-around;
+padding:12px;
+box-shadow:0 10px 25px rgba(0,0,0,.12);
+}
+
+.footer-menu button{
+border:none;
+background:#eef1ff;
+padding:10px 16px;
+border-radius:12px;
+color:#4c6fff;
+font-weight:600;
+cursor:pointer;
+}
+
+.footer-menu button:hover{
+background:#4c6fff;
+color:#fff;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+
+<div class="navbar">
+
+<div class="logo">🎬 Admin Dashboard</div>
+
+<div class="menu">
+<button onclick="openPage('dashboard')">Dashboard</button>
+<button onclick="openPage('offers')">Offers</button>
+<button onclick="openPage('bookings')">Bookings</button>
+<button onclick="openPage('issues')">Issues</button>
+<button onclick="logout()">Logout</button>
+</div>
+
+</div>
+
+<!-- ================= DASHBOARD ================= -->
+
+<div id="dashboardPage" class="container">
+
+<div class="stats">
+
+<div class="stat-card">
+<h4>Today Income</h4>
+<h2 id="todayIncome">₹0</h2>
+</div>
+
+<div class="stat-card">
+<h4>Today Orders</h4>
+<h2 id="todayOrders">0</h2>
+</div>
+
+<div class="stat-card">
+<h4>Year Income</h4>
+<h2 id="yearIncome">₹0</h2>
+</div>
+
+<div class="stat-card">
+<h4>Total Users</h4>
+<h2 id="totalUsers">0</h2>
+</div>
+
+</div>
+
+</div>
+
+<!-- ================= OFFERS ================= -->
+
+<div id="offersPage" class="container" style="display:none">
+
+<div class="table-box">
+
+<h3 style="margin-bottom:15px;color:#4c6fff;">Manage Offers</h3>
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Image</th>
+<th>Title</th>
+<th>Amount</th>
+<th>Slots</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody id="offerTable"></tbody>
+</table>
+
+<div class="form-grid">
+
+<input id="oid" placeholder="ID (for edit)">
+<input id="title" placeholder="Title">
+<input id="smallD" placeholder="Small Description">
+<input id="largeD" placeholder="Large Description">
+<input id="image" placeholder="Image URL">
+<input id="discount" placeholder="Discount">
+<input id="amount" placeholder="Amount">
+<input id="slot" placeholder="Slot">
+<input id="duration" placeholder="Duration">
+<input id="date" type="date">
+<input id="startTime" type="time">
+<input id="endTime" type="time">
+
+</div>
+
+<div style="margin-top:15px;display:flex;gap:10px;">
+<button class="btn primary" onclick="addOffer()">Add Offer</button>
+<button class="btn success" onclick="updateOffer()">Edit Offer</button>
+</div>
+
+</div>
+
+</div>
+
+<!-- ================= BOOKINGS ================= -->
+
+<div id="bookingsPage" class="container" style="display:none">
+
+<div class="table-box">
+
+<h3 style="margin-bottom:15px;color:#4c6fff;">Bookings</h3>
+
+<table>
+<thead>
+<tr>
+<th>Offer ID</th>
+<th>Offer Name</th>
+<th>User ID</th>
+<th>User Name</th>
+<th>Email</th>
+<th>Day</th>
+<th>Timing</th>
+</tr>
+</thead>
+
+<tbody id="bookingTable"></tbody>
+</table>
+
+</div>
+
+</div>
+
+<!-- ================= ISSUES ================= -->
+
+<div id="issuesPage" class="container" style="display:none">
+
+<div class="table-box">
+
+<h3 style="margin-bottom:15px;color:#4c6fff;">User Issues</h3>
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>User</th>
+<th>Title</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody id="issueTable"></tbody>
+</table>
+
+</div>
+
+</div>
+
+<!-- ================= FOOTER ================= -->
+
+<div class="footer-menu">
+<button onclick="openPage('dashboard')">Dashboard</button>
+<button onclick="openPage('offers')">Offers</button>
+<button onclick="openPage('bookings')">Bookings</button>
+<button onclick="openPage('issues')">Issues</button>
+<button onclick="logout()">Logout</button>
+</div>
+
+<script>
+
+const API = "http://localhost:8080";
+
+/* ================= LOAD DASHBOARD ================= */
+
+function loadDashboard(){
+fetch(API + "/bookings/dashboard")
+.then(res=>res.json())
+.then(data=>{
+todayIncome.innerText = "₹" + data.todayIncome;
+todayOrders.innerText = data.todayOrders;
+yearIncome.innerText = "₹" + data.yearIncome;
+totalUsers.innerText = data.totalUsers;
+});
+}
+
+/* ================= LOAD OFFERS ================= */
+
+function loadOffers(){
+
+fetch(API + "/offers")
+.then(res=>res.json())
+.then(data=>{
+
+offerTable.innerHTML="";
+
+data.forEach(o=>{
+
+offerTable.innerHTML += `
+<tr>
+<td>${o.id}</td>
+<td><img class="thumb" src="${o.image}"></td>
+<td>${o.title}</td>
+<td>₹${o.amount}</td>
+<td>${o.slot}</td>
+<td>
+<button class="btn success" onclick='fillEdit(${JSON.stringify(o)})'>Edit</button>
+<button class="btn danger" onclick="deleteOffer(${o.id})">Delete</button>
+</td>
+</tr>
+`;
+
+});
+
+});
+
+}
+
+/* ================= ADD OFFER ================= */
+
+function addOffer(){
+
+const data = getFormData();
+console.log("Sending:", data);
+
+fetch(API + "/offers/add",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+})
+.then(res=>{
+if(!res.ok){
+throw new Error("Failed to add offer");
+}
+return res.json();
+})
+.then(()=>{
+alert("Offer Added ✅");
+loadOffers();
+})
+.catch(err=>{
+console.error(err);
+alert("Error adding offer ❌");
+});
+
+}
+
+/* ================= UPDATE OFFER ================= */
+
+function updateOffer(){
+
+const data = getFormData();
+
+fetch(API + "/offers/update/" + oid.value,{
+method:"PUT",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+})
+.then(res=>{
+if(!res.ok){
+throw new Error("Update failed");
+}
+return res.json();
+})
+.then(()=>{
+alert("Offer Updated ✅");
+loadOffers();
+})
+.catch(err=>{
+console.error(err);
+alert("Error updating ❌");
+});
+
+}
+
+/* ================= DELETE OFFER ================= */
+
+function deleteOffer(id){
+
+fetch(API + "/offers/delete/" + id,{
+method:"DELETE"
+})
+.then(()=>loadOffers());
+
+}
+
+/* ================= FORM DATA (FIXED) ================= */
+
+function getFormData(){
+  return {
+    title: title.value.trim(),
+    smallD: smallD.value.trim(),
+    largeD: largeD.value.trim(),
+    image: image.value.trim(),
+
+    discount: discount.value ? parseFloat(discount.value) : 0,
+    amount: amount.value ? parseFloat(amount.value) : 0,
+    slot: slot.value ? parseInt(slot.value) : 0,
+
+    duration: duration.value.trim(),
+
+    date: date.value || null,
+    startTime: startTime.value || null,
+    endTime: endTime.value || null
+  };
+}
+
+/* ================= FILL EDIT ================= */
+
+function fillEdit(o){
+
+oid.value=o.id;
+title.value=o.title;
+smallD.value=o.smallD;
+largeD.value=o.largeD;
+image.value=o.image;
+discount.value=o.discount;
+amount.value=o.amount;
+slot.value=o.slot;
+duration.value=o.duration;
+date.value=o.date;
+startTime.value=o.startTime;
+endTime.value=o.endTime;
+
+}
+
+/* ================= BOOKINGS ================= */
+
+function loadBookings(){
+
+fetch(API + "/bookings/admin")
+.then(res=>res.json())
+.then(data=>{
+
+bookingTable.innerHTML="";
+
+data.forEach(b=>{
+
+bookingTable.innerHTML += `
+<tr>
+<td>${b.offerId}</td>
+<td>${b.shootName}</td>
+<td>${b.userId}</td>
+<td>${b.email}</td>
+<td>${b.date}</td>
+<td>${b.startTime}</td>
+<td>${b.endTime}</td>
+<td>${b.status}</td>
+</tr>
+`;
+
+});
+
+});
+
+}
+
+/* ================= ISSUES ================= */
+
+function loadIssues(){
+
+fetch(API + "/issues")
+.then(res=>res.json())
+.then(data=>{
+
+issueTable.innerHTML="";
+
+data.forEach(i=>{
+
+issueTable.innerHTML += `
+<tr>
+<td>${i.id}</td>
+<td>${i.userName}</td>
+<td>${i.title}</td>
+<td>${i.description}</td>
+</tr>
+`;
+
+});
+
+});
+
+}
+
+/* ================= PAGE ================= */
+
+function openPage(page){
+
+dashboardPage.style.display="none";
+offersPage.style.display="none";
+bookingsPage.style.display="none";
+issuesPage.style.display="none";
+
+if(page==="dashboard"){
+dashboardPage.style.display="block";
+loadDashboard();
+}
+
+if(page==="offers"){
+offersPage.style.display="block";
+loadOffers();
+}
+
+if(page==="bookings"){
+bookingsPage.style.display="block";
+loadBookings();
+}
+
+if(page==="issues"){
+issuesPage.style.display="block";
+loadIssues();
+}
+
+}
+
+/* ================= LOGOUT ================= */
+
+function logout(){
+window.location.href="videologin.html";
+}
+
+/* ================= INIT ================= */
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>

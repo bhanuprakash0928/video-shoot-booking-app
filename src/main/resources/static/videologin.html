@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auth | Video Shoot Booking</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+
+/* ✅ ONLY CHANGE — WHITE BACKGROUND */
+body{
+  min-height:100vh;
+  background:#ffffff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#0f172a;
+}
+
+.container{
+  width:480px;
+  max-width:92%;
+  background:rgba(255,255,255,0.95);
+  border-radius:22px;
+  padding:40px 35px;
+  box-shadow:0 25px 60px rgba(0,0,0,0.2);
+}
+
+.panel{display:none;animation:fadeIn .5s ease}
+.panel.active{display:block}
+
+h2{margin-bottom:8px;font-size:28px}
+p{color:#475569;margin-bottom:22px;font-size:14px}
+
+form{display:flex;flex-direction:column;gap:14px}
+
+input{
+  padding:13px;
+  border-radius:10px;
+  border:1px solid #e2e8f0;
+  outline:none;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+}
+
+a{color:#0284c7;text-decoration:none;cursor:pointer}
+a:hover{text-decoration:underline}
+
+button{
+  padding:13px;
+  border:none;
+  border-radius:12px;
+  background:#38bdf8;
+  color:#020617;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.switch-text{text-align:center;margin-top:12px;font-size:14px}
+
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(20px)}
+to{opacity:1;transform:translateY(0)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div class="panel active" id="loginPanel">
+<h2>Login 👋</h2>
+<p>Access your bookings and media files.</p>
+
+<form onsubmit="loginUser(event)">
+<input id="loginEmail" type="email" placeholder="Email" required>
+<input id="loginPassword" type="password" placeholder="Password" required>
+
+<div class="row">
+<label><input type="checkbox"> Remember</label>
+<a onclick="showPanel('forgotPanel')">Forgot?</a>
+</div>
+
+<button>Login</button>
+</form>
+
+<div class="switch-text">
+New user? <a onclick="showPanel('signupPanel')">Sign Up</a>
+</div>
+</div>
+
+<!-- SIGNUP -->
+<div class="panel" id="signupPanel">
+<h2>Create Account 🚀</h2>
+
+<form onsubmit="signupUser(event)">
+<input id="signupName" placeholder="Full Name" required>
+<input id="signupPhone" placeholder="Phone Number" required>
+<input id="signupEmail" type="email" placeholder="Email" required>
+
+<button type="button" onclick="sendSignupOtp()">Send OTP</button>
+
+<input id="signupOtp" placeholder="Enter OTP" required>
+<input id="signupPassword" type="password" placeholder="Password" required>
+
+<button>Sign Up</button>
+</form>
+
+<div class="switch-text">
+Already have account? <a onclick="showPanel('loginPanel')">Back to Login</a>
+</div>
+</div>
+
+<!-- FORGOT -->
+<div class="panel" id="forgotPanel">
+<h2>Forgot Password 🔑</h2>
+
+<form onsubmit="sendForgotOtp(event)">
+<input id="forgotEmail" type="email" placeholder="Email Address" required>
+<button>Get OTP</button>
+</form>
+
+<div class="switch-text">
+<a onclick="showPanel('loginPanel')">Back to Login</a>
+</div>
+</div>
+
+<!-- OTP VERIFY -->
+<div class="panel" id="otpPanel">
+<h2>Verify OTP</h2>
+
+<form onsubmit="verifyForgotOtp(event)">
+<input id="forgotOtp" placeholder="Enter OTP" required>
+<button>Submit OTP</button>
+</form>
+</div>
+
+<!-- RESET PASSWORD -->
+<div class="panel" id="resetPanel">
+<h2>New Password</h2>
+
+<form onsubmit="resetPassword(event)">
+<input id="newPassword" type="password" placeholder="New Password" required>
+<input id="confirmPassword" type="password" placeholder="Confirm Password" required>
+<button>Update Password</button>
+</form>
+</div>
+
+</div>
+
+<script>
+
+/* PANEL SWITCH */
+function showPanel(id){
+ document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+}
+
+/* ================= SIGNUP OTP (API CALL) ================= */
+async function sendSignupOtp(){
+  const email = signupEmail.value;
+
+  if(!email){
+    alert("Enter email first");
+    return;
+  }
+
+  try{
+    const res = await fetch(
+      `http://localhost:8080/api/otp/send?email=${email}&type=signup`,
+      {
+        method: "POST"
+      }
+    );
+
+    const data = await res.text();
+    alert(data);
+
+  }catch(err){
+    console.error(err);
+    alert("Error sending OTP");
+  }
+}
+
+
+/* ================= SIGNUP (STORE IN DB) ================= */
+async function signupUser(e){
+  e.preventDefault();
+
+  const user = {
+    name: signupName.value,
+    phone: signupPhone.value,
+    email: signupEmail.value,
+    password: signupPassword.value
+  };
+
+  const otp = signupOtp.value;
+
+  try{
+    // 🔹 STEP 1: VERIFY OTP
+    const otpRes = await fetch(`/api/otp/verify?email=${user.email}&otp=${otp}`, {
+      method: "POST"
+    });
+
+    const otpResult = await otpRes.text();
+
+    if(!otpResult.includes("Verified")){
+      alert("Invalid or Expired OTP ❌");
+      return;
+    }
+
+    // 🔹 STEP 2: REGISTER USER
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(user)
+    });
+
+    if(res.ok){
+      alert("Account Created Successfully ✅");
+      showPanel('loginPanel');
+    } else {
+      alert("Signup Failed ❌");
+    }
+
+  }catch(err){
+    console.error(err);
+    alert("Server error");
+  }
+}
+
+
+/* ================= LOGIN ================= */
+async function loginUser(e){
+  e.preventDefault();
+
+  const email = loginEmail.value;
+  const password = loginPassword.value;
+
+  if(email==="admin@b" && password==="admin"){
+    window.location.href = "/admin.html";
+    return;
+  }
+
+  try{
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    console.log("STATUS:", res.status);  // 👈 CHECK THIS
+
+    const text = await res.text();       // 👈 READ RAW RESPONSE
+    console.log("RAW RESPONSE:", text);
+
+    if(res.ok){
+      const data = JSON.parse(text);
+
+      console.log("PARSED DATA:", data);
+
+      localStorage.setItem("user", JSON.stringify({
+        id: data.id,
+        email: data.email,
+        name: data.name
+      }));
+
+      console.log("Saved user:", localStorage.getItem("user"));
+
+      window.location.href = "/videodashboard.html";
+
+    } else {
+      alert("Login Failed ❌");
+    }
+
+  }catch(err){
+    console.error("ERROR:", err);
+    alert("Server error");
+  }
+}
+
+/* ================= FORGOT PASSWORD ================= */
+
+/* SEND OTP */
+async function sendForgotOtp(e){
+  e.preventDefault();
+
+  const email = forgotEmail.value;
+
+  if(!email){
+    alert("Enter email first");
+    return;
+  }
+
+  try{
+    const res = await fetch(
+      `http://localhost:8080/api/otp/send?email=${email}&type=forgot`,
+      {
+        method: "POST"
+      }
+    );
+
+    const data = await res.text();
+    alert(data);
+
+    showPanel('otpPanel');
+
+  }catch(err){
+    console.error(err);
+    alert("Error sending OTP");
+  }
+}
+
+
+/* VERIFY OTP */
+async function verifyForgotOtp(e){
+  e.preventDefault();
+
+  const email = forgotEmail.value;
+  const otp = forgotOtp.value;
+
+  const res = await fetch(`/api/otp/verify?email=${email}&otp=${otp}`, {
+    method: "POST"
+  });
+
+  const result = await res.text();
+
+  if(result.includes("Verified")){
+    showPanel('resetPanel');
+  } else {
+    alert("Wrong OTP ❌");
+  }
+}
+
+
+/* RESET PASSWORD */
+async function resetPassword(e){
+  e.preventDefault();
+
+  if(newPassword.value !== confirmPassword.value){
+    alert("Passwords not matching");
+    return;
+  }
+
+  const data = {
+    email: forgotEmail.value,
+    password: newPassword.value
+  };
+
+  try{
+    const res = await fetch("/api/reset-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    if(res.ok){
+      alert("Password Updated ✅");
+      showPanel('loginPanel');
+    } else {
+      alert("Failed ❌");
+    }
+
+  }catch(err){
+    alert("Server error");
+  }
+}
+
+</script>
+
+</body>
+</html>
