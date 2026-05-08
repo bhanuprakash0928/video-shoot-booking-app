@@ -374,6 +374,62 @@ justify-content:flex-start;
 }
 
 }
+/* SLOT CARDS */
+
+.slot-container{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+gap:12px;
+margin-top:10px;
+}
+
+.slot-card{
+padding:14px;
+border-radius:14px;
+border:2px solid #eef1ff;
+cursor:pointer;
+transition:.3s;
+background:#fff;
+text-align:center;
+}
+
+.slot-card:hover{
+transform:translateY(-3px);
+}
+
+.slot-card.active{
+border:2px solid #4c6fff;
+background:#eef3ff;
+}
+
+.slot-date{
+font-size:15px;
+font-weight:700;
+margin-bottom:6px;
+}
+
+.slot-count{
+font-size:13px;
+font-weight:600;
+}
+
+.slot-green{
+color:#16a34a;
+}
+
+.slot-orange{
+color:#f59e0b;
+}
+
+.slot-red{
+color:#ef4444;
+}
+
+.slot-disabled{
+opacity:.6;
+pointer-events:none;
+background:#f4f4f4;
+}
 
 </style>
 </head>
@@ -454,18 +510,30 @@ justify-content:flex-start;
 
 <p><b>Amount:</b> ₹<span id="pAmount"></span></p>
 <p><b>Discount:</b> <span id="pDiscount"></span>%</p>
-<p><b>Slots:</b> <span id="pSlot"></span></p>
+
 <p><b>Duration:</b> <span id="pDuration"></span></p>
 
 <hr style="margin:15px 0">
 
 <!-- 🔥 BOOKING SECTION -->
 
-<label>Select Date</label>
-<input type="date" id="bDate" style="width:100%;padding:10px;margin-bottom:10px">
+<h3 style="margin-bottom:12px;color:#4c6fff">
+Choose Available Date(Please wait slots will load slowly)
+</h3>
+
+<div id="slotContainer" class="slot-container"></div>
+
+
 
 <label>Select Start Time</label>
-<input type="time" id="bStart" style="width:100%;padding:10px;margin-bottom:10px">
+<input type="time" id="bStart"
+style="
+width:100%;
+padding:12px;
+margin-top:15px;
+border-radius:10px;
+border:1px solid #ddd;
+">
 
 <label>Duration</label>
 <input id="bDuration" disabled style="width:100%;padding:10px;margin-bottom:10px">
@@ -522,7 +590,7 @@ const API = "http://localhost:8080";
 
 let offers = [];
 let bookings = [];
-let selectedOffer = null;
+
 
 /* LOAD OFFERS */
 
@@ -565,14 +633,14 @@ offerGrid.innerHTML += `
 
 <div class="price-row">
 <div class="price">₹${o.amount}</div>
-<div class="slot-box">${o.slot} Slots</div>
+<div class="slot-box">
+View Availability
+</div>
 </div>
 
-${o.slot > 0 
-? `<button onclick='openPopup(${JSON.stringify(o)})'>View More</button>`
-: `<button disabled style="background:#ccc;cursor:not-allowed">Slot Full</button>`
-}
-
+<button onclick='openPopup(${JSON.stringify(o)})'>
+View More
+</button>
 </div>
 
 </div>
@@ -591,74 +659,250 @@ o.title.toLowerCase().includes(text.toLowerCase())
 renderOffers(result);
 }
 
-/* POPUP */
+/* ================= GLOBAL ================= */
+
+let selectedOffer = null;
+let selectedDate = "";
+
+/* ================= POPUP ================= */
 
 function openPopup(o){
 
   selectedOffer = o;
 
-  overlay.style.display="flex";
+  overlay.style.display = "flex";
 
+  // OFFER DETAILS
   pImg.src = o.image;
   pTitle.innerText = o.title;
   pDesc.innerText = o.largeD;
   pAmount.innerText = o.amount;
   pDiscount.innerText = o.discount;
-  pSlot.innerText = o.slot;
+ 
   pDuration.innerText = o.duration;
 
-  // 🔥 AUTO FILL USER DATA
+  // USER DETAILS
   const user = JSON.parse(localStorage.getItem("user"));
 
   bEmail.value = user.email || "";
   bPhone.value = user.number || "";
 
-  // 🔥 AUTO FILL DURATION
+  // DURATION
   bDuration.value = o.duration || "";
 
+  // RESET
+  selectedDate = "";
+  bStart.value = "";
+
+  // LOAD DATE SLOTS
+  loadOfferSlots(o.id);
 }
+
+/* ================= CLOSE POPUP ================= */
 
 function closePopup(){
-overlay.style.display="none";
+
+  overlay.style.display = "none";
+
+  selectedDate = "";
+
 }
 
-/* BOOK SLOT */
+/* ================= LOAD OFFER SLOTS ================= */
+
+function loadOfferSlots(offerId){
+
+fetch(API + "/slots/" + offerId)
+
+.then(res => {
+
+   if(!res.ok){
+      throw new Error("Failed to load slots");
+   }
+
+   return res.json();
+
+})
+
+.then(data => {
+
+   slotContainer.innerHTML = "";
+
+   if(data.length === 0){
+
+      slotContainer.innerHTML = `
+      <p style="color:red">
+         No slots available
+      </p>
+      `;
+
+      return;
+   }
+
+   data.forEach(slot => {
+
+      let color = "slot-green";
+
+      if(slot.remainingSlots === 1){
+         color = "slot-orange";
+      }
+
+      if(slot.remainingSlots <= 0){
+         color = "slot-red";
+      }
+
+      let disabledClass =
+      slot.remainingSlots <= 0
+      ? "slot-disabled"
+      : "";
+
+      let statusText =
+      slot.remainingSlots > 0
+      ? `${slot.remainingSlots} Slots Left`
+      : "Sold Out";
+
+      slotContainer.innerHTML += `
+
+      <div
+      class="slot-card ${disabledClass}"
+      onclick="selectDate(this,'${slot.date}')"
+      >
+
+         <div class="slot-date">
+            ${formatDate(slot.date)}
+         </div>
+
+         <div class="slot-count ${color}">
+            ${statusText}
+         </div>
+
+      </div>
+
+      `;
+
+   });
+
+})
+
+.catch(err => {
+
+   console.error(err);
+
+   slotContainer.innerHTML = `
+   <p style="color:red">
+      Failed to load slots
+   </p>
+   `;
+
+});
+
+}
+
+/* ================= SELECT DATE ================= */
+
+function selectDate(el, date){
+
+   selectedDate = date;
+
+   document.querySelectorAll(".slot-card")
+   .forEach(card => {
+      card.classList.remove("active");
+   });
+
+   el.classList.add("active");
+
+}
+
+/* ================= BOOK SLOT ================= */
 
 function bookSlot(){
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const date = bDate.value;
   const start = bStart.value;
 
-  if(!date || !start){
-    alert("Please select date and time ❌");
+  // DATE CHECK
+  if(!selectedDate){
+
+    alert("Please select available date ❌");
+
     return;
   }
 
-  // 🔥 FIXED URL (clean + encoded)
-const url = `${API}/bookings/book?userId=${user.id}&email=${encodeURIComponent(user.email)}&offerId=${selectedOffer.id}&shootName=${encodeURIComponent(selectedOffer.title)}&date=${date}&startTime=${start}&duration=${encodeURIComponent(selectedOffer.duration)}`;
+  // TIME CHECK
+  if(!start){
 
+    alert("Please select start time ❌");
+
+    return;
+  }
+
+  // API URL
+  const url =
+  `${API}/bookings/book` +
+  `?userId=${user.id}` +
+  `&email=${encodeURIComponent(user.email)}` +
+  `&offerId=${selectedOffer.id}` +
+  `&shootName=${encodeURIComponent(selectedOffer.title)}` +
+  `&date=${selectedDate}` +
+  `&startTime=${start}` +
+  `&duration=${encodeURIComponent(selectedOffer.duration)}`;
+
+  // API CALL
   fetch(url,{
     method:"POST"
   })
-  .then(res=>{
-    if(!res.ok) return res.text().then(err=>{throw new Error(err)});
+
+  .then(res => {
+
+    if(!res.ok){
+
+      return res.text()
+      .then(err => {
+         throw new Error(err);
+      });
+
+    }
+
     return res.json();
+
   })
-  .then(()=>{
+
+  .then(data => {
+
     alert("Booking Confirmed ✅");
+
+    // CLOSE POPUP
     closePopup();
+
+    // RELOAD OFFERS
     loadOffers();
+
   })
-  .catch(err=>{
+
+  .catch(err => {
+
     console.error(err);
+
     alert(err.message);
+
   });
 
 }
 
+/* ================= DATE FORMAT ================= */
 
+function formatDate(dateString){
+
+   const date = new Date(dateString);
+
+   return date.toLocaleDateString("en-IN",{
+      weekday:"short",
+      day:"numeric",
+      month:"short"
+   });
+
+}
 
 function loadBookings(type){
 

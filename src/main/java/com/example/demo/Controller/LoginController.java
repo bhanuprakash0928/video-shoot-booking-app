@@ -21,10 +21,10 @@ public class LoginController {
     private LoginService loginService;
 
     // ✅ Register
-    @PostMapping("/register")
-    public Login registeruser(@RequestBody Login user){
-        return loginService.register(user);
-    }
+        @PostMapping("/register")
+        public Login registeruser(@RequestBody Login user){
+            return loginService.register(user);
+        }
 
     // ✅ Login (EMAIL + PASSWORD CHECK)
     @PostMapping("/login")

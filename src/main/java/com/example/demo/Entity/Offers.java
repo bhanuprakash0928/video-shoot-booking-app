@@ -19,13 +19,13 @@ public class Offers {
 	@Column(nullable=false)
 	private String title;
 
-	@Column(nullable=false)
+	@Column(nullable=false,length = 10000)
 	private String smallD;
 
-	@Column(nullable=false)
+	@Column(nullable=false,length = 10000)
 	private String largeD;
 
-	@Column(nullable=false)
+	@Column(nullable=false  ,length = 10000)
 	private String image;
 
 	@Column
@@ -38,7 +38,7 @@ public class Offers {
 	private int slot;
 
 	@Column(nullable=false)
-	private int duration;
+	private String duration;
 
 	@Column
 	 @JsonFormat(pattern = "yyyy-MM-dd")
@@ -65,8 +65,8 @@ public class Offers {
 	public int getSlot(){return slot;}
 	public void setSlot(int slot){this.slot=slot;}
 
-	public int getDuration(){return duration;}
-	public void setDuration(int duration){this.duration=duration;}
+	public String getDuration(){return duration;}
+	public void setDuration(String duration){this.duration=duration;}
 
 	public String getImage(){return image;}
 	public void setImage(String image){this.image=image;}

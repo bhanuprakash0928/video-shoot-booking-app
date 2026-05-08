@@ -2,8 +2,6 @@ package com.example.demo.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.demo.Entity.Login;
 import com.example.demo.Repository.LoginRepository;
@@ -14,28 +12,27 @@ public class LoginService {
     @Autowired
     private LoginRepository loginRepository;
 
-    // ✅ REGISTER
-    @PostMapping("/register")
-    public Login register(@RequestBody Login user){
+   
+  public Login register(Login user){
 
-        Login existing = loginRepository.findByEmail(user.getEmail());
+    Login existing = loginRepository.findByEmail(user.getEmail());
 
-       if(existing != null){
-            throw new RuntimeException("User not found");
-        }
+  
+    if(existing != null){
+
         existing.setName(user.getName());
         existing.setNumber(user.getNumber());
         existing.setPassword(user.getPassword());
 
-        loginRepository.save(existing);
-
         return loginRepository.save(existing);
     }
 
-    // ✅ LOGIN (EMAIL + PASSWORD CHECK)
-    public Login loginuser(String email, String password){
 
-        
+    return loginRepository.save(user);
+}
+
+
+    public Login loginuser(String email, String password){
 
         Login user = loginRepository.findByEmail(email);
 
@@ -46,7 +43,7 @@ public class LoginService {
         throw new RuntimeException("Invalid Email or Password");
     }
 
-    // ✅ RESET PASSWORD
+  
     public boolean resetPassword(String email, String newPassword){
 
         Login user = loginRepository.findByEmail(email);

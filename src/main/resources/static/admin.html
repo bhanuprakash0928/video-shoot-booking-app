@@ -486,9 +486,9 @@ method:"DELETE"
 function getFormData(){
   return {
     title: title.value.trim(),
-    smallD: smallD.value.trim(),
-    largeD: largeD.value.trim(),
-    image: image.value.trim(),
+    smallD: smallD.value.trim() || "test",
+    largeD: largeD.value.trim() || "test",
+    image: image.value.trim() || "test.jpg",
 
     discount: discount.value ? parseFloat(discount.value) : 0,
     amount: amount.value ? parseFloat(amount.value) : 0,

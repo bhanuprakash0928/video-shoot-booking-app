@@ -102,14 +102,10 @@ New user? <a onclick="showPanel('signupPanel')">Sign Up</a>
 <div class="panel" id="signupPanel">
 <h2>Create Account 🚀</h2>
 
-<form onsubmit="signupUser(event)">
+<form onsubmit="openOtpPanel(event)">
 <input id="signupName" placeholder="Full Name" required>
 <input id="signupPhone" placeholder="Phone Number" required>
 <input id="signupEmail" type="email" placeholder="Email" required>
-
-<button type="button" onclick="sendSignupOtp()">Send OTP</button>
-
-<input id="signupOtp" placeholder="Enter OTP" required>
 <input id="signupPassword" type="password" placeholder="Password" required>
 
 <button>Sign Up</button>
@@ -118,6 +114,17 @@ New user? <a onclick="showPanel('signupPanel')">Sign Up</a>
 <div class="switch-text">
 Already have account? <a onclick="showPanel('loginPanel')">Back to Login</a>
 </div>
+</div>
+
+<!-- SIGNUP OTP VERIFY -->
+<div class="panel" id="signupOtpPanel">
+<h2>Verify Signup OTP</h2>
+
+<form onsubmit="signupUser(event)">
+<input id="signupOtp" placeholder="Enter OTP" required>
+
+<button>Verify & Create Account</button>
+</form>
 </div>
 
 <!-- FORGOT -->
@@ -165,82 +172,93 @@ function showPanel(id){
  document.getElementById(id).classList.add('active');
 }
 
-/* ================= SIGNUP OTP (API CALL) ================= */
-async function sendSignupOtp(){
-  const email = signupEmail.value;
-
-  if(!email){
-    alert("Enter email first");
-    return;
-  }
-
-  try{
-    const res = await fetch(
-      `http://localhost:8080/api/otp/send?email=${email}&type=signup`,
-      {
-        method: "POST"
-      }
-    );
-
-    const data = await res.text();
-    alert(data);
-
-  }catch(err){
-    console.error(err);
-    alert("Error sending OTP");
-  }
-}
 
 
-/* ================= SIGNUP (STORE IN DB) ================= */
-async function signupUser(e){
+
+
+//* STORE USER TEMP */
+let signupData = {};
+
+/* OPEN OTP PANEL */
+async function openOtpPanel(e){
   e.preventDefault();
 
-  const user = {
+  signupData = {
     name: signupName.value,
-    phone: signupPhone.value,
+    number: signupPhone.value,
     email: signupEmail.value,
     password: signupPassword.value
   };
 
+  try{
+
+    const res = await fetch(
+      `http://localhost:8080/api/otp/send?email=${signupData.email}&type=signup`,
+      {
+        method:"POST"
+      }
+    );
+
+    const result = await res.text();
+
+    alert(result);
+
+    showPanel('signupOtpPanel');
+
+  }catch(err){
+    console.error(err);
+    alert("OTP Send Failed ❌");
+  }
+}
+
+
+/* VERIFY OTP + CREATE ACCOUNT */
+async function signupUser(e){
+  e.preventDefault();
+
   const otp = signupOtp.value;
 
   try{
-    // 🔹 STEP 1: VERIFY OTP
-    const otpRes = await fetch(`/api/otp/verify?email=${user.email}&otp=${otp}`, {
-      method: "POST"
-    });
+
+    /* VERIFY OTP */
+    const otpRes = await fetch(
+      `/api/otp/verify?email=${signupData.email}&otp=${otp}`,
+      {
+        method:"POST"
+      }
+    );
 
     const otpResult = await otpRes.text();
 
     if(!otpResult.includes("Verified")){
-      alert("Invalid or Expired OTP ❌");
+      alert("Invalid OTP ❌");
       return;
     }
 
-    // 🔹 STEP 2: REGISTER USER
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
+    /* CREATE ACCOUNT */
+    const res = await fetch("/api/register",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
       },
-      body: JSON.stringify(user)
+      body:JSON.stringify(signupData)
     });
 
     if(res.ok){
+
       alert("Account Created Successfully ✅");
+
       showPanel('loginPanel');
-    } else {
+
+    }else{
       alert("Signup Failed ❌");
     }
 
   }catch(err){
     console.error(err);
-    alert("Server error");
+    alert("Server Error ❌");
   }
 }
-
-
 /* ================= LOGIN ================= */
 async function loginUser(e){
   e.preventDefault();
@@ -262,9 +280,9 @@ async function loginUser(e){
       body: JSON.stringify({ email, password })
     });
 
-    console.log("STATUS:", res.status);  // 👈 CHECK THIS
+    console.log("STATUS:", res.status);  
 
-    const text = await res.text();       // 👈 READ RAW RESPONSE
+    const text = await res.text();       
     console.log("RAW RESPONSE:", text);
 
     if(res.ok){

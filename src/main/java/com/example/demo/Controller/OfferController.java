@@ -33,14 +33,7 @@ public class OfferController {
     // ADD OFFER
     @PostMapping("/add")
     public Offers addOffer(@RequestBody Offers offer) {
-        System.out.println("======== DEBUG START ========");
-        System.out.println("TITLE: " + offer.getTitle());
-        System.out.println("DATE: " + offer.getDate());
-        System.out.println("START: " + offer.getStartTime());
-        System.out.println("END: " + offer.getEndTime());
-        System.out.println("AMOUNT: " + offer.getAmount());
-        System.out.println("SLOT: " + offer.getSlot());
-        System.out.println("======== DEBUG END ========");
+        
     return offerService.addOffer(offer);
     }
 
