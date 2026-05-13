@@ -46,5 +46,23 @@ public class LoginController {
         }
 
 
+        @PostMapping("/user/change-password")
+    public String changePassword(
+            @RequestParam Long userId,
+            @RequestParam String currentPassword,
+            @RequestParam String newPassword
+    ){
+
+        boolean updated = loginService.changePassword(
+                userId,
+                currentPassword,
+                newPassword
+        );
+
+        return updated
+                ? "Password Changed Successfully"
+                : "Current Password Incorrect";
+    }
+
 
 }

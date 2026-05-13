@@ -1,5 +1,6 @@
 		package com.example.demo.Entity;
 
+		import java.time.LocalDate;
 		import java.time.LocalDateTime;
 		
 		import jakarta.persistence.Column;
@@ -39,6 +40,15 @@
 			@Column(name="otp_expiry")
 			private LocalDateTime otpExpiry;
 
+			 @Column(name="date_of_birth")
+			private LocalDate dateOfBirth;
+
+			@Column(name="profile_image")
+			private String profileImage;
+
+			@Column(name="dark_mode")
+			private Boolean darkMode = false;
+
 
 			public Long getId(){return id;}
 
@@ -63,6 +73,29 @@
 
 			public void setOtpExpiry(LocalDateTime otpExpiry) {
 				this.otpExpiry = otpExpiry;
+			}
+			public LocalDate getDateOfBirth() {
+          		return dateOfBirth;
+			}
+
+			public void setDateOfBirth(LocalDate dateOfBirth) {
+				this.dateOfBirth = dateOfBirth;
+			}
+
+			public String getProfileImage() {
+				return profileImage;
+			}
+
+			public void setProfileImage(String profileImage) {
+				this.profileImage = profileImage;
+			}
+
+			public Boolean getDarkMode() {
+				return darkMode;
+			}
+
+			public void setDarkMode(Boolean darkMode) {
+				this.darkMode = darkMode;
 			}
 
 			

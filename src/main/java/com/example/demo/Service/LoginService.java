@@ -61,4 +61,40 @@ public class LoginService {
         return loginRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+    public Login updateProfile(Login updatedUser){
+
+        Login existingUser =
+                loginRepository.findById(updatedUser.getId())
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        existingUser.setName(updatedUser.getName());
+        existingUser.setNumber(updatedUser.getNumber());
+        existingUser.setDateOfBirth(updatedUser.getDateOfBirth());
+        existingUser.setProfileImage(updatedUser.getProfileImage());
+        existingUser.setDarkMode(updatedUser.getDarkMode());
+
+        return loginRepository.save(existingUser);
+    }
+    public boolean changePassword(
+            Long userId,
+            String currentPassword,
+            String newPassword
+    ){
+
+        Login user = loginRepository.findById(userId)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        if(user.getPassword().equals(currentPassword)){
+
+            user.setPassword(newPassword);
+
+            loginRepository.save(user);
+
+            return true;
+        }
+
+        return false;
+    }
 }

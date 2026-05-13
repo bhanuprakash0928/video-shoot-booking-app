@@ -431,6 +431,175 @@ pointer-events:none;
 background:#f4f4f4;
 }
 
+
+/* ================= PROFILE NEW ================= */
+
+.profile-card{
+max-width:520px;
+margin:auto;
+background:#fff;
+padding:28px;
+border-radius:22px;
+box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+.profile-top{
+text-align:center;
+margin-bottom:25px;
+}
+
+.profile-image-box img{
+width:130px;
+height:130px;
+border-radius:50%;
+object-fit:cover;
+border:5px solid #eef1ff;
+}
+
+.upload-image-btn{
+display:inline-block;
+margin-top:14px;
+padding:10px 18px;
+background:#4c6fff;
+color:#fff;
+border-radius:12px;
+cursor:pointer;
+font-size:14px;
+font-weight:600;
+}
+
+.profile-top h2{
+margin-top:18px;
+color:#4c6fff;
+}
+
+.profile-top p{
+font-size:14px;
+color:#777;
+}
+
+.profile-info{
+margin-top:20px;
+}
+
+.info-box{
+background:#f7f8ff;
+padding:14px;
+border-radius:14px;
+margin-bottom:14px;
+}
+
+.info-box span{
+font-size:13px;
+color:#777;
+}
+
+.info-box h4{
+margin-top:5px;
+font-size:16px;
+color:#222;
+}
+
+.info-row{
+display:flex;
+gap:14px;
+}
+
+.info-row .info-box{
+flex:1;
+}
+
+.profile-buttons{
+display:flex;
+gap:12px;
+margin-top:20px;
+}
+
+.edit-btn,
+.password-btn,
+.save-btn{
+flex:1;
+padding:13px;
+border:none;
+border-radius:12px;
+background:#4c6fff;
+color:#fff;
+font-weight:600;
+cursor:pointer;
+font-size:14px;
+}
+
+.edit-btn:hover,
+.password-btn:hover,
+.save-btn:hover{
+opacity:.9;
+}
+
+.edit-section,
+.password-section{
+display:none;
+margin-top:28px;
+padding-top:24px;
+border-top:1px solid #eee;
+animation:fadeIn .3s ease;
+}
+
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(10px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+.input-group{
+margin-bottom:15px;
+}
+
+.input-group label{
+display:block;
+margin-bottom:6px;
+font-size:14px;
+font-weight:600;
+}
+
+.input-group input{
+width:100%;
+padding:12px;
+border:1px solid #ddd;
+border-radius:12px;
+outline:none;
+}
+
+.input-row{
+display:flex;
+gap:12px;
+}
+
+.input-row .input-group{
+flex:1;
+}
+
+@media(max-width:600px){
+
+.profile-buttons{
+flex-direction:column;
+}
+
+.info-row{
+flex-direction:column;
+}
+
+.input-row{
+flex-direction:column;
+}
+
+}
+
+
 </style>
 </head>
 
@@ -474,13 +643,145 @@ background:#f4f4f4;
 
 <div id="profilePage" class="container" style="display:none">
 
-<div class="profile-box">
-<img id="profileImage" src="">
-<input id="pName" placeholder="Name">
-<input id="pPhone" placeholder="Phone Number">
-<input id="pEmail" placeholder="Email">
-<button onclick="updateProfile()">Update Profile</button>
-</div>
+    <div class="profile-card">
+
+        <!-- TOP -->
+        <div class="profile-top">
+
+            <div class="profile-image-box">
+
+                <img id="profileImage"
+                src="https://via.placeholder.com/150"
+                alt="Profile">
+
+                <label for="uploadImage" class="upload-image-btn">
+                    Upload Photo
+                </label>
+
+                <input type="file" id="uploadImage" hidden>
+
+            </div>
+
+            <h2>My Profile</h2>
+            <p>Manage your account details</p>
+
+        </div>
+
+        <!-- PROFILE DETAILS -->
+
+        <div class="profile-info">
+
+            <div class="info-box">
+                <span>Name</span>
+                <h4 id="showName">Bhanu Prakash</h4>
+            </div>
+
+            <div class="info-box">
+                <span>Email</span>
+                <h4 id="showEmail">bhanu@gmail.com</h4>
+            </div>
+
+            <div class="info-box">
+                <span>Phone Number</span>
+                <h4 id="showPhone">9876543210</h4>
+            </div>
+
+            <div class="info-row">
+
+                <div class="info-box">
+                    <span>Age</span>
+                    <h4 id="showAge">22</h4>
+                </div>
+
+                <div class="info-box">
+                    <span>Date Of Birth</span>
+                    <h4 id="showDob">2003-08-15</h4>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ACTION BUTTONS -->
+
+        <div class="profile-buttons">
+
+            <button class="edit-btn" onclick="toggleEditProfile()">
+                Edit Profile
+            </button>
+
+            <button class="password-btn" onclick="togglePassword()">
+                Change Password
+            </button>
+
+        </div>
+
+        <!-- EDIT PROFILE -->
+
+        <div id="editSection" class="edit-section">
+
+            <h3>Edit Profile</h3>
+
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="pName" placeholder="Enter Name">
+            </div>
+
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="pEmail" placeholder="Enter Email">
+            </div>
+
+            <div class="input-group">
+                <label>Phone Number</label>
+                <input type="text" id="pPhone" placeholder="Enter Phone Number">
+            </div>
+
+            <div class="input-row">
+
+                <div class="input-group">
+                    <label>Age</label>
+                    <input type="number" id="pAge" placeholder="Age">
+                </div>
+
+                <div class="input-group">
+                    <label>Date Of Birth</label>
+                    <input type="date" id="pDob">
+                </div>
+
+            </div>
+
+            <button class="save-btn" onclick="updateProfile()">
+                Save Changes
+            </button>
+
+        </div>
+
+        <!-- CHANGE PASSWORD -->
+
+        <div id="passwordSection" class="password-section">
+
+            <h3>Change Password</h3>
+
+            <div class="input-group">
+                <label>Current Password</label>
+                <input type="password" id="currentPassword"
+                placeholder="Enter Current Password">
+            </div>
+
+            <div class="input-group">
+                <label>New Password</label>
+                <input type="password" id="newPassword"
+                placeholder="Enter New Password">
+            </div>
+
+            <button class="save-btn" onclick="changePassword()">
+              Update Password
+              </button>
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -586,7 +887,10 @@ If you have any issue, please raise it in the <b>Issues Page</b>.
 	window.location.href = "videologin.html";
 	}
 
-const API = "http://localhost:8080";
+const API =
+window.location.hostname === "localhost"
+  ? "http://localhost:8080"
+  : "https://video-shoot-booking-app-production.up.railway.app/";
 
 let offers = [];
 let bookings = [];
@@ -939,46 +1243,348 @@ ${b.status}
 
 /* PROFILE */
 
+/* ================= PROFILE ================= */
+
+function calculateAge(dob){
+
+  if(!dob) return "-";
+
+  const birth = new Date(dob);
+
+  const diff = Date.now() - birth.getTime();
+
+  const ageDate = new Date(diff);
+
+  return Math.abs(ageDate.getUTCFullYear() - 1970);
+
+}
+
+/* LOAD PROFILE */
+
 function loadProfile(){
 
   const user = JSON.parse(localStorage.getItem("user"));
 
   if(!user){
+
     window.location.href = "videologin.html";
+
     return;
+
   }
 
   fetch(API + "/api/user/profile?userId=" + user.id)
-  .then(res => res.json())
+
+  .then(res => {
+
+    if(!res.ok){
+      throw new Error("Failed To Load Profile");
+    }
+
+    return res.json();
+
+  })
+
   .then(u => {
 
     console.log("PROFILE DATA:", u);
 
-    document.getElementById("navProfileName").innerText = u.name;
-    document.getElementById("pName").value = u.name;
-    document.getElementById("pPhone").value = u.number;
-    document.getElementById("pEmail").value = u.email;
+    // ================= NAVBAR =================
 
-    let img = "https://via.placeholder.com/150?text=User";
+    document.getElementById("navProfileName").innerText =
+    u.name || "Profile";
 
-    document.getElementById("navProfileImg").src = img;
+
+
+    // ================= PROFILE DISPLAY =================
+
+    document.getElementById("showName").innerText =
+    u.name || "-";
+
+    document.getElementById("showEmail").innerText =
+    u.email || "-";
+
+    document.getElementById("showPhone").innerText =
+    u.number || "-";
+
+    document.getElementById("showDob").innerText =
+    u.dateOfBirth || "-";
+
+    document.getElementById("showAge").innerText =
+    calculateAge(u.dateOfBirth);
+
+
+
+    // ================= EDIT INPUTS =================
+
+    document.getElementById("pName").value =
+    u.name || "";
+
+    document.getElementById("pEmail").value =
+    u.email || "";
+
+    document.getElementById("pPhone").value =
+    u.number || "";
+
+    document.getElementById("pDob").value =
+    u.dateOfBirth || "";
+
+
+
+    // ================= PROFILE IMAGE =================
+
+    let img =
+
+    u.profileImage && u.profileImage !== ""
+
+    ? u.profileImage
+
+    : "https://via.placeholder.com/150?text=User";
+
     document.getElementById("profileImage").src = img;
 
+    document.getElementById("navProfileImg").src = img;
+
   })
-  .catch(err => console.error(err));
+
+  .catch(err => {
+
+    console.error(err);
+
+    alert("Failed To Load Profile");
+
+  });
+
 }
+
+/* ================= UPDATE PROFILE ================= */
+
 function updateProfile(){
 
-fetch(API + "/user/profile",{
-method:"PUT",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-name:pName.value,
-phone:pPhone.value,
-email:pEmail.value
-})
-})
-.then(()=>alert("Profile Updated ✅"));
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  fetch(API + "/api/user/update",{
+
+    method:"POST",
+
+    headers:{
+      "Content-Type":"application/json"
+    },
+
+    body:JSON.stringify({
+
+      id:user.id,
+
+      name:document.getElementById("pName").value,
+
+      email:document.getElementById("pEmail").value,
+
+      number:document.getElementById("pPhone").value,
+
+      dateOfBirth:document.getElementById("pDob").value,
+
+      profileImage:
+      document.getElementById("profileImage").src
+
+    })
+
+  })
+
+  .then(res => {
+
+    if(!res.ok){
+      throw new Error("Update Failed");
+    }
+
+    return res.json();
+
+  })
+
+  .then(data => {
+
+    alert("Profile Updated Successfully ✅");
+
+
+
+    // UPDATE LOCAL STORAGE
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(data)
+    );
+
+
+
+    // RELOAD PROFILE
+
+    loadProfile();
+
+
+
+    // CLOSE EDIT SECTION
+
+    document.getElementById("editSection").style.display =
+    "none";
+
+  })
+
+  .catch(err => {
+
+    console.error(err);
+
+    alert("Failed To Update Profile");
+
+  });
+
+}
+
+/* ================= CHANGE PASSWORD ================= */
+
+function changePassword(){
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const currentPassword =
+  document.getElementById("currentPassword").value;
+
+  const newPassword =
+  document.getElementById("newPassword").value;
+
+
+
+  if(!currentPassword || !newPassword){
+
+    alert("Please Fill All Fields ❌");
+
+    return;
+
+  }
+
+  fetch(
+
+    API +
+
+    "/api/user/change-password" +
+
+    "?userId=" + user.id +
+
+    "&currentPassword=" +
+    encodeURIComponent(currentPassword) +
+
+    "&newPassword=" +
+    encodeURIComponent(newPassword),
+
+    {
+      method:"POST"
+    }
+
+  )
+
+  .then(res => res.text())
+
+  .then(msg => {
+
+    alert(msg);
+
+    document.getElementById("currentPassword").value =
+    "";
+
+    document.getElementById("newPassword").value =
+    "";
+
+    document.getElementById("passwordSection").style.display =
+    "none";
+
+  })
+
+  .catch(err => {
+
+    console.error(err);
+
+    alert("Failed To Change Password");
+
+  });
+
+}
+
+/* ================= IMAGE PREVIEW ================= */
+
+document.getElementById("uploadImage")
+.addEventListener("change", function(e){
+
+  const file = e.target.files[0];
+
+  if(file){
+
+    const reader = new FileReader();
+
+    reader.onload = function(event){
+
+      document.getElementById("profileImage").src =
+      event.target.result;
+
+      document.getElementById("navProfileImg").src =
+      event.target.result;
+
+    };
+
+    reader.readAsDataURL(file);
+
+  }
+
+});
+
+/* ================= TOGGLE EDIT PROFILE ================= */
+
+function toggleEditProfile(){
+
+  const edit =
+  document.getElementById("editSection");
+
+  if(edit.style.display === "block"){
+
+    edit.style.display = "none";
+
+  }else{
+
+    edit.style.display = "block";
+
+    document.getElementById("passwordSection")
+    .style.display = "none";
+
+  }
+
+}
+
+/* ================= TOGGLE PASSWORD ================= */
+
+function togglePassword(){
+
+  const pass =
+  document.getElementById("passwordSection");
+
+  if(pass.style.display === "block"){
+
+    pass.style.display = "none";
+
+  }else{
+
+    pass.style.display = "block";
+
+    document.getElementById("editSection")
+    .style.display = "none";
+
+  }
+
+}
+
+/* ================= LOGOUT ================= */
+
+function logout(){
+
+  localStorage.removeItem("user");
+
+  window.location.href = "videologin.html";
 
 }
 
@@ -1025,6 +1631,90 @@ if(page==="issues") issuesPage.style.display="block";
 
 function logout(){
 window.location.href="videologin.html";
+}
+
+/* TOGGLE EDIT PROFILE */
+
+function toggleEditProfile(){
+
+const edit = document.getElementById("editSection");
+
+if(edit.style.display === "block"){
+
+edit.style.display = "none";
+
+}else{
+
+edit.style.display = "block";
+
+document.getElementById("passwordSection").style.display = "none";
+
+}
+
+}
+
+/* TOGGLE PASSWORD */
+
+function togglePassword(){
+
+const pass = document.getElementById("passwordSection");
+
+if(pass.style.display === "block"){
+
+pass.style.display = "none";
+
+}else{
+
+pass.style.display = "block";
+
+document.getElementById("editSection").style.display = "none";
+
+}
+
+}
+
+
+function changePassword(){
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const currentPassword =
+  document.getElementById("currentPassword").value;
+
+  const newPassword =
+  document.getElementById("newPassword").value;
+
+  fetch(
+    API +
+    "/api/user/change-password" +
+    "?userId=" + user.id +
+    "&currentPassword=" + encodeURIComponent(currentPassword) +
+    "&newPassword=" + encodeURIComponent(newPassword),
+
+    {
+      method:"POST"
+    }
+  )
+
+  .then(res => res.text())
+
+  .then(msg => {
+
+    alert(msg);
+
+    document.getElementById("currentPassword").value = "";
+    document.getElementById("newPassword").value = "";
+
+  })
+
+  .catch(err => {
+
+    console.error(err);
+
+    alert("Failed To Change Password");
+
+  });
+
 }
 
 /* INIT */

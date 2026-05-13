@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.Entity.OfferSlot;
 import com.example.demo.Entity.Offers;
@@ -20,45 +21,55 @@ public class OfferSlotService {
     @Autowired
     private OfferRepository offerRepo;
 
-    public List<OfferSlot> getSlots(Long offerId){
+    // ✅ GET ALL AVAILABLE SLOTS
+    @Transactional
+    public List<OfferSlot> getSlots(Long offerId) {
 
+        // ✅ FIND OFFER
         Offers offer = offerRepo.findById(offerId)
                 .orElseThrow(() ->
-                        new RuntimeException("Offer not found: " + offerId)
+                        new RuntimeException(
+                                "Offer not found: " + offerId
+                        )
                 );
 
         LocalDate today = LocalDate.now();
-        LocalDate endDate = today.plusDays(29);
 
-       int slots = offer.getSlot();
+        // ✅ DEFAULT SLOT COUNT
+        int defaultSlots = offer.getSlot();
 
-                if(slots <= 0){
-                slots = 1;
-                }
+        
 
-
-
-        for(int i=0; i<30; i++){
+        // ✅ CREATE 30 DAYS SLOTS IF NOT EXISTS
+        for (int i = 0; i < 30; i++) {
 
             LocalDate date = today.plusDays(i);
 
-            boolean exists = repo.existsByOfferIdAndDate(offerId, date);
+            boolean exists =
+                    repo.existsByOfferIdAndDate(
+                            offerId,
+                            date
+                    );
 
-            if(!exists){
+            if (!exists) {
 
                 OfferSlot slot = new OfferSlot();
+
                 slot.setOffer(offer);
                 slot.setDate(date);
-                slot.setRemainingSlots(slots);
+
+                // ✅ INITIAL SLOT VALUE
+                slot.setRemainingSlots(defaultSlots);
 
                 repo.save(slot);
             }
         }
 
-        return repo.findByOfferIdAndDateBetween(
+        // ✅ RETURN AVAILABLE SLOTS
+        return repo.findByOfferIdAndDateBetweenOrderByDateAsc(
                 offerId,
                 today,
-                endDate
+                today.plusDays(29)
         );
     }
 }

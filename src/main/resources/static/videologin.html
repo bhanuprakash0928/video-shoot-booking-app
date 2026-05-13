@@ -192,12 +192,17 @@ async function openOtpPanel(e){
 
   try{
 
-    const res = await fetch(
-      `http://localhost:8080/api/otp/send?email=${signupData.email}&type=signup`,
-      {
-        method:"POST"
-      }
-    );
+   const API =
+window.location.hostname === "localhost"
+  ? "http://localhost:8080"
+  : "https://video-shoot-booking-app-production.up.railway.app/";
+
+const res = await fetch(
+  `${API}/api/otp/send?email=${signupData.email}&type=signup`,
+  {
+    method:"POST"
+  }
+);
 
     const result = await res.text();
 
@@ -324,12 +329,17 @@ async function sendForgotOtp(e){
   }
 
   try{
-    const res = await fetch(
-      `http://localhost:8080/api/otp/send?email=${email}&type=forgot`,
-      {
-        method: "POST"
-      }
-    );
+    const API =
+window.location.hostname === "localhost"
+  ? "http://localhost:8080"
+  : "https://video-shoot-booking-app-production.up.railway.app/";
+
+const res = await fetch(
+  `${API}/api/otp/send?email=${email}&type=forgot`,
+  {
+    method: "POST"
+  }
+);
 
     const data = await res.text();
     alert(data);
