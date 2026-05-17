@@ -312,13 +312,16 @@ color:#fff;
 <table>
 <thead>
 <tr>
-<th>Offer ID</th>
-<th>Offer Name</th>
-<th>User ID</th>
-<th>User Name</th>
+<th>Shoot</th>
+<th>User</th>
 <th>Email</th>
-<th>Day</th>
-<th>Timing</th>
+<th>Date</th>
+<th>Time</th>
+<th>Amount Paid</th>
+<th>Status</th>
+<th>Drive Link</th>
+<th>Admin Message</th>
+<th>Action</th>
 </tr>
 </thead>
 
@@ -529,27 +532,214 @@ endTime.value=o.endTime;
 function loadBookings(){
 
 fetch(API + "/bookings/admin")
-.then(res=>res.json())
-.then(data=>{
 
-bookingTable.innerHTML="";
+.then(res => res.json())
 
-data.forEach(b=>{
+.then(data => {
+
+bookingTable.innerHTML = "";
+
+data.forEach(b => {
+
+let status = "UPCOMING";
+
+const today =
+new Date().toISOString().split("T")[0];
+
+if(b.date === today){
+
+status = "TODAY";
+
+}
+
+if(b.status === "COMPLETED"){
+
+status = "COMPLETED";
+
+}
 
 bookingTable.innerHTML += `
+
 <tr>
-<td>${b.offerId}</td>
-<td>${b.shootName}</td>
-<td>${b.userId}</td>
+
+<td>
+<b>${b.shootName}</b>
+</td>
+
+<td>${b.userName || "-"}</td>
+
 <td>${b.email}</td>
+
 <td>${b.date}</td>
-<td>${b.startTime}</td>
-<td>${b.endTime}</td>
-<td>${b.status}</td>
+
+<td>
+${b.startTime || "-"}
+</td>
+
+<td>
+
+<input
+type="number"
+value="${b.amountPaid || 0}"
+id="amount-${b.id}"
+style="
+width:100px;
+padding:8px;
+border-radius:8px;
+border:1px solid #ddd;
+"
+>
+
+</td>
+
+<td>
+
+<div style="
+padding:8px 12px;
+border-radius:20px;
+font-size:12px;
+font-weight:700;
+text-align:center;
+
+background:
+
+${status === "COMPLETED"
+? "#dcfce7"
+
+: status === "TODAY"
+? "#fef3c7"
+
+: "#dbeafe"};
+
+color:
+
+${status === "COMPLETED"
+? "#166534"
+
+: status === "TODAY"
+? "#92400e"
+
+: "#1d4ed8"};
+">
+
+${status}
+
+</div>
+
+</td>
+
+<td>
+
+<input
+type="text"
+placeholder="Paste Google Drive Link"
+value="${b.driveLink || ''}"
+id="drive-${b.id}"
+style="
+width:220px;
+padding:10px;
+border-radius:10px;
+border:1px solid #ddd;
+"
+>
+
+</td>
+
+<td>
+
+<textarea
+id="msg-${b.id}"
+placeholder="Admin message..."
+style="
+width:220px;
+height:80px;
+padding:10px;
+border-radius:10px;
+border:1px solid #ddd;
+resize:none;
+"
+>${b.adminMessage || ''}</textarea>
+
+</td>
+
+<td>
+
+<button
+class="btn success"
+onclick="updateBooking(${b.id})"
+style="margin-bottom:8px;"
+>
+Save
+</button>
+
+</td>
+
 </tr>
+
 `;
 
 });
+
+});
+
+}
+
+function updateBooking(id){
+
+const amountPaid =
+document.getElementById("amount-" + id).value;
+
+const driveLink =
+document.getElementById("drive-" + id).value;
+
+const adminMessage =
+document.getElementById("msg-" + id).value;
+
+fetch(
+
+API +
+
+"/bookings/update-status/" + id +
+
+"?amountPaid=" + amountPaid +
+
+"&status=COMPLETED" +
+
+"&driveLink=" + encodeURIComponent(driveLink) +
+
+"&adminMessage=" + encodeURIComponent(adminMessage),
+
+{
+method:"PUT"
+}
+
+)
+
+.then(res => {
+
+if(!res.ok){
+
+throw new Error("Update Failed");
+
+}
+
+return res.text();
+
+})
+
+.then(msg => {
+
+alert("Booking Updated ✅");
+
+loadBookings();
+
+})
+
+.catch(err => {
+
+console.error(err);
+
+alert("Failed To Update");
 
 });
 

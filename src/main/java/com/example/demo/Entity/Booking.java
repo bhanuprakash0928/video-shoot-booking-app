@@ -53,6 +53,10 @@ public class Booking {
 
     private LocalDateTime createdAt;
 
+    private Double amountPaid = 0.0;
+
+private String userName;
+
     
 
     public Long getId() { return id; }
@@ -89,4 +93,20 @@ public class Booking {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public Double getAmountPaid() {
+    return amountPaid;
+}
+
+public void setAmountPaid(Double amountPaid) {
+    this.amountPaid = amountPaid;
+}
+
+public String getUserName() {
+    return userName;
+}
+
+public void setUserName(String userName) {
+    this.userName = userName;
+}
 }

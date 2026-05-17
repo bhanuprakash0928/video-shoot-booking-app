@@ -1213,34 +1213,195 @@ function loadBookings(type){
 const user = JSON.parse(localStorage.getItem("user"));
 
 fetch(API + "/bookings/user?userId=" + user.id)
-.then(res=>res.json())
-.then(data=>{
+
+.then(res => res.json())
+
+.then(data => {
 
 let result = data;
 
-if(type==="upcoming"){
-result = data.filter(b=>b.status==="UPCOMING");
+if(type === "upcoming"){
+
+result = data.filter(b => b.status === "UPCOMING");
+
 }
 
-if(type==="completed"){
-result = data.filter(b=>b.status==="COMPLETED");
+if(type === "completed"){
+
+result = data.filter(b => b.status === "COMPLETED");
+
 }
 
-bookingList.innerHTML="";
+bookingList.innerHTML = "";
 
-result.forEach(b=>{
-bookingList.innerHTML += `
-<div class="booking-item">
-<b>${b.shootName}</b><br>
-${b.date}<br>
-${b.status}
+if(result.length === 0){
+
+bookingList.innerHTML = `
+<div style="
+background:#fff;
+padding:30px;
+border-radius:18px;
+text-align:center;
+font-weight:600;
+color:#777;
+">
+No bookings available
 </div>
 `;
-});
 
-});
+return;
+
 }
 
+result.forEach(b => {
+
+bookingList.innerHTML += `
+
+<div style="
+background:#fff;
+padding:22px;
+border-radius:20px;
+margin-bottom:18px;
+box-shadow:0 10px 25px rgba(0,0,0,.06);
+border:1px solid #eef1ff;
+">
+
+<!-- TOP -->
+
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:10px;
+margin-bottom:18px;
+">
+
+<div>
+
+<h2 style="
+color:#4c6fff;
+font-size:22px;
+margin-bottom:6px;
+">
+🎬 ${b.shootName}
+</h2>
+
+<p style="
+font-size:14px;
+color:#666;
+">
+📅 ${b.date}
+</p>
+
+</div>
+
+<div style="
+padding:10px 16px;
+border-radius:30px;
+font-size:13px;
+font-weight:700;
+background:
+${b.status === "UPCOMING"
+? "#e8fff1"
+: "#f3f4f6"};
+
+color:
+${b.status === "UPCOMING"
+? "#16a34a"
+: "#555"};
+">
+${b.status}
+</div>
+
+</div>
+
+<!-- CONTACT -->
+
+<div style="
+background:#f7f8ff;
+padding:16px;
+border-radius:16px;
+margin-bottom:18px;
+">
+
+<h3 style="
+margin-bottom:12px;
+color:#4c6fff;
+font-size:17px;
+">
+📞 Contact Support
+</h3>
+
+<div style="
+display:flex;
+flex-direction:column;
+gap:10px;
+">
+
+<a
+href="tel:9652966734"
+style="
+text-decoration:none;
+padding:12px;
+background:#fff;
+border-radius:12px;
+color:#333;
+font-weight:600;
+border:1px solid #eef1ff;
+">
+📱 9652966734
+</a>
+
+<a
+href="mailto:bhanuprakashreddy@gmail.com"
+style="
+text-decoration:none;
+padding:12px;
+background:#fff;
+border-radius:12px;
+color:#333;
+font-weight:600;
+border:1px solid #eef1ff;
+">
+📧 bhanuprakashreddy@gmail.com
+</a>
+
+</div>
+
+</div>
+
+<!-- ISSUE BUTTON -->
+
+<button
+onclick="
+openPage('issues');
+
+document.getElementById('issueTitle').value='Booking Issue - ${b.shootName}';
+"
+style="
+width:100%;
+padding:14px;
+border:none;
+border-radius:14px;
+background:linear-gradient(135deg,#ef4444,#ff6b6b);
+color:#fff;
+font-weight:700;
+font-size:15px;
+cursor:pointer;
+">
+⚠ Raise Issue
+</button>
+
+</div>
+
+`;
+
+});
+
+});
+
+}
 /* PROFILE */
 
 /* ================= PROFILE ================= */
